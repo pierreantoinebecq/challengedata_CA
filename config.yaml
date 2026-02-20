@@ -1,0 +1,36 @@
+paths:
+  raw_data: "data/raw"
+  processed_data: "data/processed"
+  outputs: "outputs"
+  models: "models"
+
+features:
+  drop_col: ["AN_EXERC"]
+  id_col: ["ID"]
+  target: ['CHARGE', "FREQ", "CM"]
+
+training:
+  model_name: "xgboost"
+  random_state: 42
+  cv_folds: 5            
+  save_model: true
+
+preprocessing:
+  numerical:
+    imputer: "median"  
+    scaler: "robust"   
+  categorical:
+    imputer: "most_frequent"
+    encoding: "onehot"
+
+# Default parameters (overwritten by best_params.yaml if it exists)
+model_params:
+  xgboost:
+    n_estimators: 100
+    learning_rate: 0.1
+    max_depth: 3
+  lightgbm:
+    n_estimators: 100
+    learning_rate: 0.1
+  ridge:
+    alpha: 1.0
