@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
-from sklearn.preprocessing import RobustScaler, StandardScaler, OneHotEncoder
+from sklearn.preprocessing import RobustScaler, StandardScaler, OneHotEncoder, TargetEncoder
 from sklearn.impute import SimpleImputer
 import re
 
@@ -90,6 +90,7 @@ def get_preprocessor(X, config):
     num_strat = config['preprocessing']['numerical']['imputer']
     cat_strat = config['preprocessing']['categorical']['imputer']
     scaler_type = config['preprocessing']['numerical']['scaler']
+    encoder_type = config['preprocessing']['categorical']['encoding']
 
     if scaler_type == 'robust':
             scaler = RobustScaler()
@@ -106,8 +107,8 @@ def get_preprocessor(X, config):
 
     cat_transformer = Pipeline([
         ('imputer', SimpleImputer(strategy=cat_strat)),
-        ('onehot', OneHotEncoder(handle_unknown='ignore'))
-    ])
+        ('target_encode', TargetEncoder(target_type='continuous', cv=5, smooth="auto"))
+        ])
 
     preprocessor = ColumnTransformer([
         ('num', num_transformer, num_cols),

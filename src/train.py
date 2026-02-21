@@ -51,22 +51,16 @@ def main():
     model_name = config['training']['model_name']
     print(f"⚙️  Selected Model: {model_name.upper()}")
 
-    # Hierarchy: Tuned Params > Config Params > Defaults
-    # Check if we have tuned params for THIS specific model
-    if model_name in tuned_params:
-        print(f"✨ Found tuned parameters for {model_name}!")
-        final_params = tuned_params[model_name]
-    else:
-        print(f"⚠️  No tuned params found. Using defaults from config.")
-        final_params = config['model_params'].get(model_name, {})
-
 
 #=================# MODEL FREQ #=================#
     print(f"#===# MODEL 1 : FREQ #===#")
 
+    freq_key = f"{model_name}_freq"
+    params_freq = tuned_params.get(freq_key, config['model_params'].get(freq_key, {}))
+
     # Build Pipeline
     preprocessor = get_preprocessor(X, config)
-    model = get_model(model_name, final_params)
+    model = get_model(model_name, params_freq)
     
     pipeline_freq = Pipeline([
         ('preprocessor', preprocessor), 
@@ -102,12 +96,15 @@ def main():
     print(f"#===# MODEL 2 : CM #===#")
 
      # Build Pipeline
-    mask_sinistres = df_train[target_freq] > 0
+    mask_sinistres = (df_train[target_freq] > 0) & (df_train[target_cm] > 0)
     X_cm = X[mask_sinistres]
     y_cm = df_train.loc[mask_sinistres, target_cm]
 
+    cm_key = f"{model_name}_cm"
+    params_cm = tuned_params.get(cm_key, config['model_params'].get(cm_key, {}))
+
     preprocessor = get_preprocessor(X_cm, config)
-    model = get_model(model_name, final_params)
+    model = get_model(model_name, params_cm)
     
     pipeline_cm = Pipeline([
         ('preprocessor', preprocessor), 
@@ -143,7 +140,7 @@ def main():
     preds_freq_train = pipeline_freq.predict(X)
     preds_cm_train = pipeline_cm.predict(X)
     preds_charge_train = preds_cm_train * preds_freq_train * df_train['ANNEE_ASSURANCE']
-    rmse_train = root_mean_squared_error(preds_charge_train, df_train['CHARGE'])
+    rmse_train = root_mean_squared_error(df_train['CHARGE'], preds_charge_train)
     print(f"RMSE : {rmse_train}")
     
     
@@ -152,8 +149,17 @@ def main():
 
     preds_freq = pipeline_freq.predict(X_test)
     preds_cm = pipeline_cm.predict(X_test)
+    preds_freq = np.clip(preds_freq, 0, np.inf)
+    preds_cm = np.clip(preds_cm, 0, np.inf)
+    
     preds_charge = preds_freq * preds_cm * df_test['ANNEE_ASSURANCE']
-    preds_charge = np.clip(preds_charge, 0, np.inf)
+
+    # Création et sauvegarde du fichier de soumission
+    submission = pd.DataFrame({id_col: df_test[id_col],'FREQ': preds_freq, 'CM': preds_cm, 'ANNEE_ASSURANCE':df_test['ANNEE_ASSURANCE'] , 'CHARGE': preds_charge})
+    OUTPUTS_DIR.mkdir(exist_ok=True)
+    sub_path = OUTPUTS_DIR / "submission.csv"
+    submission.to_csv(sub_path, index=False)
+    print(f"✅ Soumission sauvegardée avec succès : {sub_path}")
 
 if __name__ == "__main__":
     main()
