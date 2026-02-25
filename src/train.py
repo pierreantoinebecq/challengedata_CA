@@ -63,13 +63,13 @@ def main():
     preprocessor_freq = get_preprocessor(X, config)
 
     # --- BASELINE GLM ---
-    print("--- BASELINE GLM : POISSON (FREQ) ---")
+    print("--- BASELINE GLM : RIDGE (FREQ) ---")
     pipeline_baseline_freq = Pipeline([
         ('preprocessor', preprocessor_freq), 
-        ('model', get_model("glm_poisson", config['model_params'].get('glm_poisson', {})))
+        ('model', get_model("glm_ridge", config['model_params'].get('glm_ridge', {})))
     ])
-    cv_baseline_freq = cross_val_score(pipeline_baseline_freq, X, y_freq, cv=cv_folds, scoring='neg_root_mean_squared_error', n_jobs=-1)
-    print(f"RMSE Baseline Poisson : {-np.mean(cv_baseline_freq):.4f}")
+    cv_baseline_freq = cross_val_score(pipeline_baseline_freq, X, y_freq, cv=cv_folds, scoring='neg_root_mean_squared_error', n_jobs=2)
+    print(f"RMSE Baseline Ridge : {-np.mean(cv_baseline_freq):.4f}")
 
     # --- MAIN MODEL ---
     
@@ -104,10 +104,10 @@ def main():
     print(f"#===# MODEL 2 : CM #===#")
     preprocessor_cm = get_preprocessor(X_cm, config)
 
-    print("\n--- BASELINE GLM : GAMMA (CM) ---")
+    print("\n--- BASELINE GLM : RIDGE (CM) ---")
     pipeline_baseline_cm = Pipeline([
         ('preprocessor', preprocessor_cm), 
-        ('model', get_model("glm_gamma", config['model_params'].get('glm_gamma', {})))
+        ('model', get_model("glm_ridge", config['model_params'].get('glm_ridge', {})))
     ])
 
     cv_baseline_cm = cross_val_score(
@@ -115,7 +115,7 @@ def main():
         cv=cv_folds, scoring='neg_root_mean_squared_error', n_jobs=-1
     )
 
-    print(f"RMSE Baseline Gamma : {-np.mean(cv_baseline_cm):.4f}")
+    print(f"RMSE Baseline Ridge : {-np.mean(cv_baseline_cm):.4f}")
 
     # --- MAIN MODEL ---
     cm_key = f"{model_name}_cm"
@@ -168,9 +168,9 @@ def main():
     rmse_glm = root_mean_squared_error(df_train['CHARGE'], charge_glm)
 
     print("\n🏆 --- COMPARAISON FINALE SUR LA CHARGE (RMSE) --- 🏆")
-    print(f"🔴 Baseline GLM (Poisson/Gamma) : {rmse_glm:,.2f} €")
+    print(f"🔴 Baseline GLM (Ridge)         : {rmse_glm:,.2f} €")
     print(f"🟢 XGBoost Optimisé             : {rmse_xgb:,.2f} €")
-    print(f"Différence absolue              : {rmse_glm - rmse_xgb:,.2f} €")
+    print(f"Différence absolue               : {rmse_glm - rmse_xgb:,.2f} €")
 
     
     print("\n Predicting Final CHARGE on Test Set...")
@@ -201,7 +201,7 @@ def main():
         timestamp = datetime.now().strftime("%Y%m%d_%H%M")
         joblib.dump(pipeline_freq, MODELS_DIR / f"{model_name}_FREQ_{timestamp}.pkl")
         joblib.dump(pipeline_cm, MODELS_DIR / f"{model_name}_CM_{timestamp}.pkl")
-        print("💾 Modèles sauvegardés.")
+        print("Modèles sauvegardés.")
 
 if __name__ == "__main__":
     main()

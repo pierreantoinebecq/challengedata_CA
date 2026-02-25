@@ -1,5 +1,5 @@
 from xgboost import XGBRegressor
-from sklearn.linear_model import PoissonRegressor, GammaRegressor
+from sklearn.linear_model import PoissonRegressor, GammaRegressor, Ridge
 
 def get_xgb_model(params=None):
     if params is None: params = {}
@@ -13,6 +13,10 @@ def get_glm_gamma(params=None):
     if params is None: params = {}
     return GammaRegressor(**params)
 
+def get_glm_ridge(params=None):
+    if params is None: params = {}
+    return Ridge(**params)
+
 def get_model(model_name, params=None):
     if model_name == "xgboost":
         return get_xgb_model(params)
@@ -20,5 +24,7 @@ def get_model(model_name, params=None):
         return get_glm_poisson(params)
     elif model_name == "glm_gamma":
         return get_glm_gamma(params)
+    elif model_name == "glm_ridge": 
+        return get_glm_ridge(params)
     else:
         raise ValueError(f"Erreur fatale : Le modèle '{model_name}' n'est pas codé.")
