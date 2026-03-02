@@ -1,0 +1,14 @@
+xgboost_cm:
+  colsample_bytree: 0.9638378824750653
+  learning_rate: 0.010019733140385295
+  max_depth: 3
+  n_estimators: 158
+  objective: reg:gamma
+  subsample: 0.825546574827013
+xgboost_freq:
+  colsample_bytree: 0.8415518205740402
+  learning_rate: 0.012389400542089915
+  max_depth: 6
+  n_estimators: 295
+  objective: count:poisson
+  subsample: 0.9827475334071888

@@ -1,0 +1,26 @@
+# .gitignore
+
+# 1. Ignorer les données (TROP LOURD et CONFIDENTIEL)
+data/
+instructions/
+*.csv
+*.xlsx
+
+# 2. Ignorer les résultats et modèles (On les régénère)
+outputs/
+*.joblib
+*.pkl
+
+# 3. Ignorer les fichiers temporaires Python
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+
+# 4. Ignorer les configs système
+.DS_Store
+Thumbs.db
+
+# 5. Ignorer les environnements virtuels 
+venv/
+env/
+.env
