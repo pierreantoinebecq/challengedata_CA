@@ -6,9 +6,6 @@ from pathlib import Path
 from sklearn.model_selection import cross_val_score
 import warnings
 
-# Désactivation des warnings de Scikit-Learn (pour un terminal lisible)
-#warnings.filterwarnings('ignore')
-
 root = Path(__file__).resolve().parent.parent
 sys.path.append(str(root))
 

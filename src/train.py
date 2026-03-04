@@ -162,7 +162,7 @@ def main():
         X_tr, X_val = X.iloc[train_idx], X.iloc[val_idx]
         y_f_tr = y_freq.iloc[train_idx]
         
-        # 2. Fit and Predict FREQ (XGBoost & GLM)
+        # 2. Fit and Predict FREQ 
         pipeline_freq.fit(X_tr, y_f_tr)
         oof_preds_f_xgb[val_idx] = np.clip(pipeline_freq.predict(X_val), 0, np.inf)
 

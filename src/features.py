@@ -84,6 +84,9 @@ def initial_cleaning(df):
         if df_clean[col].astype(str).str.contains(r'<=|>=|>|<', na=False).any()]
     df_clean[cols_to_convert] = df_clean[cols_to_convert].map(get_threshold)
 
+    cols_all_nan = [c for c in df_clean.columns if df_clean[c].isna().all()]
+    df_clean = df_clean.drop(columns=cols_all_nan)
+
     return df_clean
 
 def get_preprocessor(X, config): 
